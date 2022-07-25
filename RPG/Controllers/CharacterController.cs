@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RPG.Services;
 
 namespace RPG.Controllers;
 
@@ -6,21 +7,29 @@ namespace RPG.Controllers;
 [Route("api/[Controller]/")]
 public class CharacterController : ControllerBase
 {
-    private static List<Character> characters = new List<Character>
+    private readonly ICharacterService _characterService;
+
+    public CharacterController(ICharacterService characterService)
     {
-        new Character(),
-        new Character{Id = 1, Name = "Sam"}
-    };
-    
+        _characterService = characterService;
+    }
+
     [HttpGet("GetAll")]
-    public ActionResult<List<Character>> Get()
+    public async Task<ActionResult<List<Character>>>Get()
     {
-        return Ok(characters);
+        return Ok( await _characterService.getAllCharacters());
     }
                                                                             
-    [HttpGet]
-    public ActionResult<Character> GetSingle(int id)
+    [HttpGet("id")]
+    public async Task<ActionResult<Character>> GetSingle(int id)
     {
-        return Ok(characters.FirstOrDefault(c => c.Id == id ));
+        return Ok(await _characterService.GetCharacterByid(id));
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult<List<Character>>> AddCharacter(Character newCharacter)
+    {
+        return Ok(await _characterService.AddCharacter(newCharacter));
     }
 }
+
